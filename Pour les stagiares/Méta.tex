@@ -1,0 +1,539 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8x]{ inputenc } % si ton encodage est UTF8, sinon isolatin1 pour windows, etc.
+\usepackage[T1]{fontenc}  % SUPER important pour que les polices soient complètes
+\usepackage{kpfonts} % la police CM accentuée ou une autre
+\usepackage[francais]{babel}
+
+% Change la présentation des sections, des sous-sections et du sommaire
+\renewcommand{\thesection}{\Roman{section}}
+\renewcommand{\thesubsection}{\Alph{subsection}}
+\renewcommand{\thesubsubsection}{\arabic{subsubsection}}
+
+\addto\captionsfrench{\def\contentsname{Sommaire}}
+
+% Pour les formules mathématiques
+\usepackage{ amsmath, amssymb, amsfonts, mathrsfs }
+\usepackage{ array }
+
+% Pour les couleurs et symbole euro
+\usepackage{ color }
+\usepackage{ eurosym } % \geneurowide
+\usepackage{ textcomp }
+%\usepackage{ slashbox }
+\usepackage{ tikz, xcolor } % figure
+
+% Pour les en-têtes et bas de pages
+\usepackage{ fancyhdr }
+
+% Dimension des marges
+\usepackage{geometry}
+\geometry{top = 3cm, bottom = 3cm, left = 3cm, right = 3cm}
+%\setlength{ \headsep }{ 5pt }
+\setlength{ \parindent }{ 0pt }
+
+\usepackage[hidelinks]{hyperref} % Permet de rendre le sommaire cliquable
+\hypersetup{colorlinks = true,% Paramètres des liens en bleu
+            citecolor=black,%
+            filecolor=black,%
+            linkcolor=black,%
+            urlcolor=blue} %
+
+% Les compteurs d'exercices, de propriétés, d'exemples, de définitions, de théorèmes et de corolaires :
+\newcounter{exo}
+\newcommand{\exo}{\addtocounter{exo}{1}%
+\noindent\textbf{Exercice \theexo} : }
+\newcounter{pte}
+\newcommand{\pte}{\addtocounter{pte}{1}%
+\noindent\textsc{Propriété \thepte} }
+\newcounter{exe}
+\newcommand{\exe}{\addtocounter{exe}{1}%
+\noindent\textbf{Exemple \theexe } : }
+\newcounter{defi}
+\newcommand{\defi}[1]{\addtocounter{defi}{1}%
+  \noindent\textsc{Définition \thedefi } \textbf{#1} :\\ }
+\newcommand{\rem}{\noindent\textbf{Remarque} : }
+
+\title{\Huge \bf \sc Puce microfluidique}
+\author{\fontfamily{pzc} \selectfont \LARGE Nir Shmuel}
+\date{\today}
+
+\begin{document}
+
+\pagestyle{fancy}
+\lhead{J--P Célimène} % En haut à gauche le titre du chapitre
+\chead{}
+\rhead{Développement d'un DM} % En haut à droite la classe de l'élève
+
+\maketitle
+
+Ce document est un condensé de ce qu'il faut savoir sur le développement d'un \emph{Dispositif Médical} (DM) au court et au long terme.\\
+Il est dédié aux stagiaires de M. \textsc{Célimène} dans le cadre du développement de sa puce microfluidique. 
+  \begin{sloppypar}
+
+\renewcommand{\thepage}{\arabic{page}}
+\setcounter{page}{0}
+\tableofcontents
+\thispagestyle{empty}
+
+\newpage
+
+\section{Les acteurs du développement}
+Il existe des organismes dédiés au développement des DM, chacune possède son utilité :
+\begin{enumerate}
+ \item L'AFNOR : pour le cadre réglementaire.
+ \item L'INPI : pour la déclaration d'invention.
+ \item LNE--GMED : pour le marquage CE.
+ \item L'ANSM : pour la mise sur le marché.
+ \item l'HAS : pour le remboursement.
+\end{enumerate}
+
+\subsection{Le Dispositif Médical}
+\defi{Dispositif Médical}
+L'article L.5211-1 du Code de la Santé Publique (CSP) donne la définition du DM.\\
+\og On entend par \emph{dispositif médical} tout \emph{instruments, appareil, équipement, matière, produit,} à l'exception des produits d'origine humaine, ou autre
+article seul ou en association, y compris les accessoires et \emph{logiciels} intervenant dans son fonctionnement, destiné par le fabricant à être \emph{utilisé 
+  chez l'Homme à des fins médicales} et dont l'action principale voulue \emph{n'est pas obtenue par des moyens pharmacologiques ou immunologiques ni par métabolisme,}
+mais dont la fonction peut être assistée par tels moyens.\\
+Constitue également un dispositif médical le logiciel destiné par le fabricant à être utilisé spécifiquement à des fins de diagnostiques ou thérapeutiques.\fg
+
+\subsection{L'AFNOR}
+L'\emph{Association Française de NORmalisation} joue un rôle dans le cadre réglementaire sur le territoire français.\\
+L'AFNOR est l'organisme officiel français de normalisation. Il est membre de l'\emph{Organisation Internationale de Normalisation} 
+(ISO\footnote{International Standard of Organisation.}) auprès duquel il représente la France (comme l'ANSI\footnote{American National Standards Institue.} y représente les \'Etats--Unis).\\
+C'est elle qui élabore des normes.\\
+
+\defi{Norme}
+\emph{Larousse} nous enseigne que : Règle fixant les conditions de la réalisation d'une opération, de l'exécution d'un objet ou de 
+l'élaboration d'un produit dont on veut unifier l'emploi ou assurer l'interchangeabilité.\\
+Cette règle est définie par consensus au près des organismes nationaux dont l'AFNOR.\\
+
+\rem Ne pas confondre entre \og standard \fg\, et \og norme \fg : le standard résulte d'un consensus plus restreint que la normal, il est élaboré entre des industriels au sein
+de consortiums et in des organismes nationaux.\\
+
+Une  norme est un document de référence :
+\begin{itemize}
+ \item élaboré de manière consensuelle ;
+ \item élaboré par toutes les parties intéressées (utilisateurs et industriels) ;
+ \item porte sur les règles, les caractéristiques, les recommandations, ou des exemples de bonnes pratiques ;
+ \item appliquée aux produits, aux services, aux méthodes, aux processus ou aux organisations ;
+ \item approuvé par un institut de normalisation reconnu ;
+ \item encourage le développement économique et l'innovation ;
+ \item apporte des solutions à des questions techniques et commerciales répétitives ;
+ \item concerne la plupart des domaines de l'économie ;
+ \item en règle général, la norme est d'application \emph{volontaire}\footnote{Obligatoire, on va la dire \og opposable\fg.} ;
+ \item c'est une référence pour les marchés publics, les contrats, et, dans certains cas, la réglementation.
+\end{itemize}
+\vspace{1.5ex}
+\rem
+\begin{itemize}
+  \item au niveau français, l'organisme de normalisation est l'\emph{AFNOR} : l'Association Française de Normalisation (FR) ;
+  \item au niveau européen, l'organisme de normalisation est le \emph{CEN} : Comité Européen de Normalisation (EN) ;
+  \item au niveau international, l'organisme de normalisation est l'\emph{ISO} : l'Organisation Internationale de Normalisation (ISO).
+\end{itemize}
+\vspace{1.5ex}
+Un norme va s'écrire sous la forme de Lettre capitales (FR, EN ou ISO qui font référence au niveau où fait effet la norme) suivies de chiffres (le numéro de la norme).\\
+
+\exe La normal $ISO$ $11607-1$ et $ISO$ $11607-2$\footnote{2 articles pour la même norme.} est relative aux \og Emballages des DMs stérilisés.\fg. Son influence est internationale (ISO).\\
+
+On trouve toutes les normes de l'AFNOR sur leur site \emph{afnor.org} dans l'onglet \og Boutique \fg\footnote{C'est une association.}.
+
+\subsection{L'INPI}
+L'\emph{Institue National de la Propriété Industrielle} protège de l'invention.\\
+
+L'INPI est un établissement public, entièrement autofinancé, placé sous la tutelle du ministère de l'\'Economie, de l'Industrie et de l'Emploi.
+Il délivre les \emph{brevets}, marques, dessins et modèles et donne accès à toutes l'information sur la propriété industrielle et les entreprises.
+Il participe activement à l'élaboration et à la mise en \oe vre des politiques publiques dans le domaines de la propriété industrielle et de la lute anti-contrefaçon.\\
+
+Elle permet le \emph{dépôt de brevet} pour en devenir le propriétaire.
+
+\subsection{LNE-Gmed}
+Le \emph{Laboratoire National de Métrologie et des Essais} dans sa filière du \emph{Groupe médical} délivre notamment le marquage \emph{CE} numéro d'identification : 0459.
+
+\begin{itemize}
+ \item Le LNE est devenu l'organisme national de référence pour la certification dans le domaine médical ;
+ \item pour en savoir plus sur les activités du LNE dans le domaine de la santé, consultez la rubrique \underline{\emph{Marchés/médical-Santé}} du site \href{https:www.lne.fr}{LNE}\footnote{lne.fr}.
+ \item il est chargé de mettre en \oe vre les procédures de certification pour l'attribution du marquage CE ;
+ \item pour ce faire un dossier technique doit être établi par le fabricant ;
+ \item il vérifie le Système de Management de la Qualité (SMQ).
+\end{itemize}
+
+\vspace{1.5ex}
+\textbf{Adresse} : 1 rue Gastion Boissier, 75015 Paris ; 01 40 43 37 00.\\
+
+\subsection{l'ANSM}
+L'Agence Nationale de Sécurité du Médicament et des produits de santé\footnote{Anciennement AFSSaPS.} donne entre autres l'autorisation de mise sur le marché (AMM).
+Elle a pour but de renforcer la sécurité sanitaire.\\
+
+Avant d'aller plus loin une définition importante qu'il faut bien comprendre, l'un des but de l'ANSM est de l'éradiquer.\\
+
+\defi{Non--conformité}\\
+Une non-conformité est un dysfonctionnement, un événement indésirable qui a engendré des conséquences plus ou moins fâcheuses dans le déroulement d'une activité.
+(Nous en rencontrons tous, dans tous les domaines de notre activité.)\\
+
+La démarche qualité (Système de Management de la Qualité) apporte cet atout fort qu'est l'analyse des non--conformités : il s'agit de les positiver !\\
+
+Les activités de l'ANSM sont diverses, entre autres :
+\begin{itemize}
+ \item matériovigilance ; \\
+ Elle s'exerce sur les DM après leur mise sur le marché, qu'ils soient marqués CE ou non, en dehors de ceux faisant l'objectif d'investigation clinique. 
+ La matériovigilance a pour objectif d'éviter que ne se (re)produisent des incidents et risques d'incidents graves\footnote{Définis à l'article L.5242-2 du CSP.} 
+ mettant en cause les DM, en prenant les mesures préventives et/ou correctives appropriées. 
+ \item biovigilance ;
+ \item accompagnement à l'innovation ;
+ \item autorisation de mise sur le marché ;
+ \item contrôle de la publicité ;
+ \item contrôle en laboratoire ;
+ \item essais cliniques DM \& DMDIV ;\\
+ L'unité \emph{veille et évaluation clinique} de l'ANSM est responsable de l'autorisation et du suivi des essais clinique interventionnels de DM \& DMDIV conduits en France
+ et assure le secrétariat du groupe d'expert sur les recherches biomédicales portant sur le DM.\\
+ Ce groupe donne notamment des avis sur la réalisation de certains essais cliniques et sur des dossiers d'événements indésirables graves survenant lors des essais cliniques
+  ; il propose le cas échéant, toutes mesure utile.\\
+  Depuis le 27 août 2006, les recherches biomédicales sur les DM \& DMDIV sont soumises à un avis des comités de protections des personnes ainsi qu'à une \emph{autorisation délivrée par l'ANSM}.\\
+  Pour toute question sur la qualification des essais cliniques, le promoteur est invité à contacter par email, en joignant tout documents utiles, l'une des unités en charges
+  de l'évaluation des essais clinique qu'il juge correspondre à son essai, et ce \emph{avant le dépôt de son dossier} de demande d'autorisation d'essai clinique.
+ \item contrôle national de qualité des analyses de biologie médicale (CNQ) ;
+ \item élaboration de bonnes pratiques ;
+ \item expertise ;
+ \item maintenance et contrôle qualité des DM ;\\
+ l'obligation de maintenance et contôle qualité des DM assurent la fiabilité et les performances des DM qui y sont soumis.
+ \item plan de gestion des risques ;
+ \item surveillance du marché des DM et des DMDIV.
+ \begin{enumerate}
+ \item L'ANSM contrôle les conditions de la mise sur le marché des DM e des DMDIV et s'assure de la conformité à la réglementation des dispositifs déclarés par le fabricant.
+ Elle organise à son initiative ou sur saisine du ministère chargé de la santé la mise en \oe vre d'actions permanentes, d'enquêtes ponctuelles et de programmes thématiques décidés annuellement.
+ \item l'ANSM exerce une surveillance des dispositifs à risque particulier et des dispositifs innovants. Cette activité repose sur les données transmises par les fabricants
+du secteur, et sur une veille de l'innovation.
+\item Ces opérations de \emph{contrôle du marché et d'évaluation} n'ont pas pour objectif de déterminer les performances des dispositifs, ce qui est la responsabilité
+de l'industriel, mais de \emph{mettre en évidence une éventuelle non conformité} par rapport aux performances annoncées et/ou par rapport à l'état de l'art.\\
+Elles peuvent correspondre à :
+\begin{itemize}
+  \item des évaluations ponctuelles portant sur un seul dispositif ;
+  \item des évaluations portant sur l'ensemble d'une catégorie de dispositifs mis sur le marché en France.
+\end{itemize}
+  \item Pour chacune de ses évaluation deux types de procédures peuvent être utilisées :
+  \begin{itemize}
+    \item l'analyse sur dossier (documentation technique, bibliographie etc.) ;
+    \item l'analyse réalisée par les laboratoires de l'ANSM ou dans des laboratoires experts ;
+    \item ces opérations peuvent aboutir à :
+    \begin{enumerate}
+     \item des demandes de mise en conformité.
+     \item à des recommandations.
+     \item à des restrictions d'utilisation.
+     \item à des arrêts de mise sur le marché.
+   \end{enumerate}
+  \end{itemize}
+\end{enumerate}
+\end{itemize}
+
+En résumé pour le marquage CE.\\
+Il y a 3 acteurs dans le marquage CE :
+\begin{enumerate}
+ \item Fabricant :
+ \begin{itemize}
+  \item responsable de la mise sur le marché, il doit choisir l'organisme notifié et il appose le marquage CE une fois obtenu.
+ \end{itemize}
+\item Organisme notifié : LNE-GMED
+\begin{itemize}
+ \item évalue la conformité aux exigences essentielles et délivre le certificat de marquage CE.
+\end{itemize}
+\item Autorité compétente : ANSM
+\begin{itemize}
+ \item désigne et inspecte les organismes notifiés ;
+ \item surveille le marché ;
+ \item centralise et évalue les données de vigilance ;
+ \item prend les mesures de police sanitaires appropriées.
+\end{itemize}
+\end{enumerate}
+
+\subsection{l'HAS}
+La Haute Autorité de Santé intervient entre autres pour le remboursement.\\
+
+L'HAS est chargée :
+\begin{enumerate}
+ \item D'évaluer scientifiquement l'intérêt médical des médicaments, des DM et des actes professionnels et de proposer ou non
+ leur \emph{remboursement par l'assurance maladie}.
+ \begin{itemize}
+  \item avis sur l'utilité médical des médicaments, des DM et des actes professionnels pris en charge par l'assurance maladie ;
+  \item avis sur les affectations longues durée ;
+  \item avis et accords conventionnels ;
+  \item évaluation médico--économique et en santé publique.
+ \end{itemize}
+ \item De promouvoir les bonnes pratiques et le bon usage des soins auprès des professionnels de santé et des usagers de santés.
+ \item De veiller à la qualité de l'information médical diffusée.
+ \item d'informer les professionnels de santé et le grand public et d'améliorer la qualité des l'information médicale.
+ \item De développer la concertation et la collaboration avec les acteurs du système de santé en France et à l'étranger.
+ \begin{itemize}
+  \item programme de recherche ;
+  \item relation internationales ;
+  \item relations avec les collègues de professionnels et les sociétés savantes ;
+  \item relation avec les associations de patients et les usagers de santé.
+ \end{itemize}
+
+\end{enumerate}
+\vspace{1.5ex}
+Dans tut cet organisme il existe 7 commissions, en particulier la Commission Nationale d'\'Evaluation des DM et des Technologie de Santé\footnote{Présidé par \textsc{Pr. Jean-Michel DUBERMARD}.} :
+\begin{enumerate}
+ \item La CNEDiMTS est la commission de la HAS qui examine toute question relative à l'évaluation en vue de leur remboursement par l'assurance maladie et au bon usage 
+ des DM ou d'autres produits à cisé diagnostiques, et des technologies de santé, y compris ceux financés dans le cadre des prestations d'hospitalisation.
+ \item Depuis juillet 2010, elle évalue également les actes médicaux. Elle est composée d'experts choisis en raison de leur compétences scientifiques.
+ \item La CNEDiMTS élabore des documents d'information destinés aux professionnels de santé.
+\end{enumerate}
+
+\section{Le développement d'un DM}
+Il va avoir différentes phases dans le développement d'un DM.
+
+\subsection{\og Sourcing\fg}
+\subsubsection{Idée, invention et Innovation ?}
+Ici il faut définir la nature de l'innovation :
+\begin{itemize}
+ \item Est--ce bien un nouveau DM ?
+ \item A-t-on bien une nouvelle conception ?
+ \item Est-ce une nouvelle stratégie thérapeutique ?
+\end{itemize}
+\vspace{1.5ex}
+\defi{Innovation}
+L'Union Européenne a retenu la définition suivante :\\
+\og Une innovation est la mise en \oe vre d'un produit (bien ou service) ou d'un procédé nouveau ou sensible amélioré, 
+d'une nouvelle méthode de commercialisation ou d'une nouvelle méthode organisationnelle dans les pratiques de 
+l'entreprise, l'organisation du lieu de travail ou les relations extérieures.\fg
+
+\subsubsection{Déclaration d'invention}
+L'UPMC possède une branche pour la déclaration d'invention. C'est la DRITT-SAIC : Direction des Relations Industrielles et du Transfert Technologique-service
+d'activités Industrielles et Contractuelles\footnote{\href{Leur site}{dritt-saic@upmc.fr}}.
+\subsubsection{Protection}
+Afin de protéger la propriété industrielle il faut rédiger et déposer des documents :
+\begin{itemize}
+ \item cahier de laboratoire.\\
+ Ce document fait office de preuve et ne demande pas de frais ;
+ \item enveloppe Soleau.\\
+ Ce document nécessite $15\,\geneurowide$ pour assurer une première protection sur 10 ans ;
+ \item Brevet.\\
+ C'est le droit d'interdire et non d'exploiter, il coûte de $3$ à $4\,k\geneurowide$ et assure une protection de 20 à 25 ans.\\
+ 
+ \rem
+ \begin{itemize}
+   \item le brevet doit être payer tous les mois, le montant varie selon le brevet ;
+   \item la traduction ($9\,000\,\geneurowide$) est le plus cher avec les cabinet juridique ($300\,\geneurowide/h$).
+ \end{itemize}
+ 
+\end{itemize}
+
+\subsection{Validation du concept}
+\subsubsection{Intérêt clinique et évaluation du potentiel}
+Il faut répondre à ces questions :
+\begin{enumerate}
+ \item Quel est l'évaluation du potentiel (recherche et essais) ?\\
+ Brevets ?\footnote{inpi.fr, google.com/patents, cncpi.fr}.
+ \item Dans le choix de la valorisation, il faut trouver des financements.
+ \item Obtenir un brevet.
+ \item Faire ce qu'il faut pour le marquage CE et investigation clinique.
+ \item Faire l'état de l'art\footnote{A cette date on a déjà fait une bonne partie de ce point.}.
+ \item Réalisation d'un prototype, d'essai et d'études préclinique.
+\end{enumerate}
+
+\subsubsection{Intérêt économique}
+
+\subsection{Valorisation et le développement in vitro}
+\subsubsection{Trouver des financements}
+Il faut trouver de l'argent pour mener à bien des projets.
+\begin{itemize}
+ \item Universitaire
+ \begin{description}
+  \item Agence Nationale de la Recherche (ANR).
+  \item Technologies pour la Santé (TecSan).
+  \item Horizon 2020 (européen).
+ \end{description}
+\item National 
+\begin{description}
+  \item Banque Publique d'Investissement (BPI France)\footnote{La plus connue et dispose de beaucoup d'options.}.
+  \item OSEO
+  \item Caisse des Dépôts.
+\end{description}
+\end{itemize}
+Et d'autres.
+
+\subsubsection{Choix de la valorisation}
+Le titre parle de lui-même.
+\subsubsection{Modélisation et prototype}
+Le titre parle de lui-même.
+\subsubsection{Test de fatigue}
+Le titre parle de lui-même.
+\subsubsection{Brevet}
+Les étapes de l'obtention du brevet :
+\begin{enumerate}
+ \item Faire le dépôt au près de l'INPI (et après 18 mois).
+\item Publication de la demande et du rapport de recherche (et après 6 mois).
+\item Examen et désignations de la demande. Il s'en suit une \emph{décision} de la division d'examen.
+\item Sinon, on pleure. Si oui, on délivre le brevet et on a 9 mois pour faire opposition.
+\item µIl s'en suit la fin de la procédure, selon le propriétaire, il peut révoquer le brevet ou le maintenir (à payer tous les mois). 
+\end{enumerate}
+
+\subsubsection{Marketing de la technologie}
+
+\subsection{Vérification et Validation in vivo clinique et préclinique}
+\subsubsection{Approche clinique}
+\subsubsection{Modèle industriel}
+\subsubsection{Test physique}
+\subsubsection{Optimisation du prototype}
+\subsubsection{Marquage CE}
+\subsubsection{Essais In vitro chez l'animal et l'humain}
+
+\subsection{Transfert Industriel}
+\subsubsection{Validation du processus de fabrication}
+\subsubsection{Autorisation de Mise sur le Marché}
+
+\subsection{Commercialisation}
+\subsubsection{Remboursement}
+\subsubsection{Transfert, Marketing et Licence}
+
+\subsection{Post-marketing et Matério-vigilance}
+
+
+\section{La mise sur les rails}
+\subsection{Classe du DMDIV}
+
+\subsection{Le verre}
+Le verre utilisé est du \emph{Pirex} $7740$, c'est un verre de type borosilicate. Il a été vérifié qu'il correspond tout à 
+fait aux verres utilisé en milieu hospitalisé et convient tout à fait aux traitements de stérilisations.
+En particulier, dans notre cas c'est un \emph{Dispositif Médical de Diagnostique In Vitro} (DMDIV).
+
+\subsection{La plaque}
+La loi de Murphy\footnote{Une variante détaillé adaptée à notre cas.} :
+\begin{center}
+ \og
+ S'il existe au moins deux façons de faire quelque chose et qu'au moins l'une de ces façons peut entraîner une catastrophe, 
+ il se trouvera forcément quelqu'un quelque part pour emprunter cette voie.
+ \fg
+\end{center}
+\vspace{1.5ex}
+La plaque est d'une forme spirale (image).\\
+
+La plaque doit contenir 2 analyseurs i.e. 2 circuits de canaux : la double vérification est nécessaire pour assurer la fiabilité du résultat !\\
+
+\rem Pour le SIDA il faut faire 2 testes avec 2 technologies différentes.
+
+\subsection{Problématique de santé}
+Avant de se lancer dans tout ça, il faut bien se poser les bonnes questions. Afin de ne pas se perdre de direction à prendre et à savoir où
+l'on va il nous faut connaître la problématique de santé :
+\begin{enumerate}
+ \item Qui est le client ?
+ Apparemment pas les labos, ils ont déjà tout. Par contre, les petites clinique et les particuliers, c'est bon.
+ \item Pour qui le DM est dédié et pourquoi ?
+ \item Pour diagnostiquer quelle maladie i.e. quel agent pathogène (virus, bactérie ou protéine) ?\\
+ 
+ \exe
+ \begin{itemize}
+  \item Les hépatites ;
+  \item le Cyto Mégalo Virus (CMV) : ce virus cause la surdité chez l'enfant (dès la naissance). Son dépistage n'est pas remboursé.
+ \end{itemize}
+ \vspace{1.5ex}
+ En tout cas il faut choisir une maladie et une seule. En effet, à vouloir aller partout on arrive nul part.
+ Et vouloir tout faire est tellement compliquer, que ce n'est pas possible en pratique.
+\end{enumerate}
+
+\subsection{Les détecteurs : source du dépistage}
+Chaque détecteur est spécifique à un agent pathogène à détecter\footnote{Il faut d'abord déterminer une maladie pour en déduire les détecteurs adéquats.}
+(ici on mettra la liste des détecteurs, sans contact, qui peut déterminer quel agent pathogène)\\
+Pour tel détecteur, sûrement ne pas prendre tout le sang : possibilité de séparer les éléments du sang par centrifugation (
+
+\subsection{Le logiciel}
+Les détecteurs vont envoyer des informations (et de quelle manière : Wifi, Bluetooth\dots) qui doit arriver sur un récepteur pour se faire analyser et afficher le résultat.\\
+Le logiciel qui fait le lien entre tout ça et affiche le résultat doit être trouvé.\\
+De plus ce logiciel doit être de même classe que le DM !
+
+\subsection{Loi Jardé}
+Pour tout ce qui est analyse sanguine, il faut se référé à la loi Jardé sur les essais.
+
+\subsection{Protection Industrielle}
+\og Pas de PI; pas de salut.\fg.\\
+\begin{enumerate}
+ \item Faire le tour des incubateurs.
+ \begin{itemize}
+  \item Jussieu en a un, il faut prendre en compte la stérilisation ;
+  \item apparemment il y en a un à Bobigny.
+ \end{itemize}
+\item Faire une enveloppe Soleau ($15\,\geneurowide$ pour $10$ ans) puis un brevet ($3$ à $6\,k\,\geneurowide$ pour $20$ à $25$ ans) (il préciserai les tarifs dans la partie II plus tard).
+\item Analyse de risque : à sous-traiter $\approx$ $20\,k\geneurowide$.
+\item Analyse de la qualité : à sous-traiter $\approx$ $10\,k\geneurowide$
+\item Marquage CE.
+\end{enumerate}
+
+\subsection{L'usine}
+\begin{enumerate}
+ \item Normes : certification de l'usine : NF EN ISO $13485-2012$ : DM - SMQ\footnote{Système de Management de la Qualité.} - Exigences à des fins réglementaires.
+ \item Où, les locaux ?
+ \item Stérilisation ?
+ \begin{itemize}
+  \item conditionnement : sale blanche ISO 8 ;
+  \item validation pour le nettoyage ;
+  \item management de la qualité : ISO $9\,001$.
+  \item des personnes en assurance qualité.
+ \end{itemize}
+\end{enumerate}
+
+\subsection{Protocole expérimentale}
+On définit comment on va utiliser, dans quelle ordre, afin de procéder au diagnostique.
+
+\subsection{Normes utiles}
+Je ferai plus tard la recherche complètes (ne pas oublier celles dites plus tôt).
+\begin{center}
+{
+\renewcommand{\arraystretch}{2.5} % Hauteur des cellules
+
+\begin{tabular}{p{2cm}|p{4cm}|p{5cm}|c}
+   Affectation & Nom & Description & Prix ($\geneurowide$, HT) \\
+   \hline\hline
+   NF EN & 13612 septembre 2012 & \'Evaluation des performances de DIV. & 61,45 \\
+   NF EN ISO & 18113-5 mai 2012 & Information fournis par le fabricant 
+				  (étiquetage). Partie 5 : instruments de DIV pour auto-teste & 53,41 \\
+  NF EN ISO & 18113-3 mai 2012 & Partie 3 : à usage professionnel & 53,41 \\
+  NF EN & 13532 novembre 2002 & Exigence générale relative au DMDIV pour auto-teste & 48,55 \\
+  NF EN & 1041+A1 novembre 2013 & Informations fournies par le fabricant de DM & 76,40 \\
+  NF EN & 13975 octobre 2003 & Procédure d'échantillonnage utilisées pour l'acceptation des essais de DMDIV (aspect statistique) & 66,72 \\
+  NF EN & 14136 juillet 2004 & Utilisation des programmes d'évaluation externe de la qualité des l'évaluation de la performance des procédures de DIV. & 53,41 \\
+  NF EN & 14254 octobre 2004 & Récipients à usage unique pour prélèvement humain non sanguin & 66,72 \\
+  NF EN & 61010-2-101 avril 2017 & Règles de sécurité pour appareils électriques de mesurage, de régulation et de laboratoire. Partie 2-101 : exigence particulière pour les DIV. & 91,08 \\
+  NF EN & 62366/A1 août 2015 & DM-application de l'ingénierie de l'aptitude à l'utilisation aux DM. & 63,42
+  
+  \end{tabular}
+}
+\end{center}
+
+\begin{center}
+{
+\renewcommand{\arraystretch}{2.5} % Hauteur des cellules
+
+\begin{tabular}{p{2cm}|p{4cm}|p{5cm}|c}
+ NF EN ISO & 10993-17 août 2009 & Evalutaion biologique des DM -partie 17 : établissement des limites admissibles des substance relargable\footnote{Pas sûr de garder cette norme.} & 87,56 \\
+ NF EN ISO & 15193 octobre 2009 & DMDIV - Mesurage des grandeurs dans des  échantillons d'origine biologique-Exigence relative au contenu et à la présentation des procédures de références. & 76,40\\
+ NF EN ISO & 15194 octobre 2009 & Idem - Exigences relatives aux matériaux de référence certifiés et au contenu de la documentation associées. & 66,72 \\
+ NF EN ISO & 17511 janvier 2004 & DMDIV - Mesurage des grandeurs dans les échantillons d'origine biologique - Traçabilité métrologique des valeurs attribuées aux agents étalonnage et aux matériaux de contrôle. & 87,56 \\
+ NF EN ISO & 18113-1 mai 2012 & Informations fournies par le fabricant (étiquetage). Partie 1 : termes, définition et exigence générales. & 104,89 \\
+ NF EN ISO & 18153 janvier 2004 & Mesurage des grandeurs dans des échantillons d'origine biologique, traçabilité métrologique des valeur de concentration catalytique des enzymes attribuées aux agents d'étalonnage et aux matériaux de contrôle. & 76,40 
+\end{tabular}
+}
+\end{center}
+
+\begin{center}
+{
+\renewcommand{\arraystretch}{2.5} % Hauteur des cellules
+
+\begin{tabular}{p{2cm}|p{4.2cm}|p{5cm}|c}
+ ISO & 15193:2009 mai 2009 & Mesurage des grandeurs dans des échantillons d'origine biologique - Exigence relative au contenu et à la présentation des modes opératoires et mesures de références. & 135,30 \\
+ ISO & 15194:2009 mai 2009 & Idem - Exigence pour les matériaux de référence certifié et pour le contenu de la documentation justificative. & 101,20 \\
+ ISO & 15198:2004 juillet 2004 & LABM\footnote{Laboratoire d'analyse biologie médicale.}-DMDIV -Valorisation des recommandations du fabricant pour la maîtrise de la qualité par l'utilisateur. & 67,10 \\
+ ISO EN & 13485 & DM-SMQ-Exigence à des fins réglementaires. & 123,98
+\end{tabular}
+}
+\end{center}
+
+\rem 
+\begin{itemize}
+  \item la norme \emph{NF EN 62366/A1 août 2015} n'est pas sûre de rester (à titre personnel) ;
+  \item la norme \emph{NF EN ISO 10993-17 août 2009} n'est pas sûre de rester (à titre personnel) ;
+  \item ces normes sont à vérifier par la suite.
+\end{itemize}
+
+\end{sloppypar}
+\end{document}
